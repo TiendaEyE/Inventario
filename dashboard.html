@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIENDA E&E - Panel de Control</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>TIENDA E&E</h1>
+            <nav>
+                <ul>
+                    <li><a href="dashboard.html" class="active">Inventario</a></li>
+                    <li><a href="historial.html">Historial</a></li>
+                    <li><button id="logoutBtn">Cerrar Sesión</button></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="user-info">
+            <span id="currentUser"></span>
+        </div>
+    </header>
+
+    <main>
+        <section class="inventory-actions">
+            <h2>Gestión de Inventario</h2>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Buscar producto por nombre...">
+                <button id="searchButton">Buscar</button>
+                <button id="clearSearch">Mostrar todos</button>
+            </div>
+            <div class="action-buttons">
+                <button id="addProductBtn">Agregar Producto</button>
+            </div>
+        </section>
+
+        <section class="inventory-table">
+            <h2>Productos Disponibles</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Categoría</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="inventoryTableBody">
+                    <!-- Los productos se cargarán aquí dinámicamente -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <!-- Modal para agregar/editar producto -->
+    <div id="productModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 id="modalTitle">Agregar Nuevo Producto</h2>
+            <form id="productForm">
+                <input type="hidden" id="productId">
+                <div class="form-group">
+                    <label for="productName">Nombre del Producto</label>
+                    <input type="text" id="productName" required>
+                </div>
+                <div class="form-group">
+                    <label for="productCategory">Categoría</label>
+                    <select id="productCategory" required>
+                        <option value="">Seleccione una categoría</option>
+                        <option value="Perro">Perro</option>
+                        <option value="Gato">Gato</option>
+                        <option value="Accesorio">Accesorio</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="productQuantity">Cantidad</label>
+                    <input type="number" id="productQuantity" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="productPrice">Precio Unitario ($)</label>
+                    <input type="number" id="productPrice" min="0" step="0.01" required>
+                </div>
+                <button type="submit">Guardar</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="inventory.js"></script>
+</body>
+</html>
