@@ -3,47 +3,829 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TIENDA E&E - Login</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Pet Kira Store - Sistema de Ventas</title>
+    <!-- Librerías profesionales para PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    
+    <!-- ================================================== -->
+    <!-- MODIFICACIÓN SOLICITADA (SIN ALTERAR NADA MÁS):    -->
+    <!-- ================================================== -->
+    <link rel="manifest" href="manifest.json">
+    <!-- ================================================== -->
+
+    <style>
+        /* --- ESTILOS GENERALES --- */
+        :root {
+            --verde-pet: #3d5c4c;
+            --naranja-pet: #ea7a3d;
+            --fondo-claro: #eef2ef;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* --- ESTILOS PANTALLA DE LOGIN --- */
+        #login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #eef2ef 0%, #d1ddd6 100%);
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            border-top: 5px solid var(--naranja-pet);
+        }
+
+        .login-box img {
+            max-width: 120px;
+            margin-bottom: 20px;
+        }
+        
+        .login-box h2 {
+            color: var(--verde-pet);
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        .login-input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .login-input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .login-input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--verde-pet);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            background-color: #2d4a3b;
+        }
+
+        .error-msg {
+            color: #d9534f;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* --- ESTILOS DEL SISTEMA (Oculto inicialmente) --- */
+        #app-screen {
+            display: none; /* Se oculta por defecto */
+        }
+
+        header { text-align: center; margin-bottom: 30px; }
+        .header-logo { max-width: 150px; margin-bottom: 10px; }
+        h1 { color: var(--verde-pet); font-size: 2.5rem; margin: 0; }
+        p.subtitle { color: var(--naranja-pet); font-weight: bold; letter-spacing: 2px; margin-top: -5px; }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+        }
+
+        /* --- PANELES --- */
+        .panel {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .panel-inventario { flex: 1; min-width: 300px; }
+        .panel-venta { flex: 2; min-width: 400px; }
+
+        h2 { border-bottom: 2px solid var(--verde-pet); padding-bottom: 10px; color: var(--verde-pet); }
+
+        /* --- INPUTS Y BOTONES --- */
+        .input-group { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+        input, select {
+            padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; font-family: inherit;
+            box-sizing: border-box;
+        }
+        .input-group input { flex: 1; }
+        .input-group .small-input { flex: 0.5; }
+
+        .btn {
+            background-color: var(--naranja-pet); color: white; border: none; padding: 10px 20px;
+            border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.3s;
+        }
+        .btn:hover { opacity: 0.8; }
+        .btn-verde { background-color: var(--verde-pet); }
+        .btn-rojo { background-color: #d9534f; }
+        .btn-azul { background-color: #2c7be5; }
+        .btn-pequeno { padding: 5px 10px; font-size: 0.8rem; }
+
+        /* --- TABLAS --- */
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 10px; }
+        table th { background-color: var(--verde-pet); color: white; padding: 8px; text-align: left; }
+        table td { border-bottom: 1px solid #eee; padding: 8px; vertical-align: middle; }
+        .acciones-td { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+
+        /* --- RESUMEN PAGO --- */
+        .resumen-pago { margin-top: 20px; background-color: var(--fondo-claro); padding: 20px; border-radius: 8px; }
+        .linea-resumen { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .total-final { font-size: 1.8rem; color: var(--verde-pet); font-weight: bold; }
+
+        /* MODAL DE EDICIÓN */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-content {
+            background: white; padding: 30px; border-radius: 8px; width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .modal-content h3 { margin-top: 0; color: var(--verde-pet); }
+    </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="logo">
-            <h1>TIENDA E&E</h1>
-            <p>Sistema de Inventario</p>
-        </div>
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="username">Usuario</label>
-                <input type="text" id="username" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Contraseña</label>
-                <input type="password" id="password" required>
-            </div>
-            <button type="submit">Iniciar Sesión</button>
-            <p id="error-message" class="error-message"></p>
-            <p class="register-link">¿No tienes cuenta? <a href="#" id="showRegister">Regístrate</a></p>
-        </form>
 
-        <form id="registerForm" class="hidden">
-            <div class="form-group">
-                <label for="regUsername">Usuario (mínimo 4 caracteres)</label>
-                <input type="text" id="regUsername" required minlength="4">
+    <!-- ============================================ -->
+    <!-- PANTALLA DE INICIO DE SESIÓN (LOGIN)          -->
+    <!-- ============================================ -->
+    <div id="login-screen">
+        <div class="login-box">
+            <!-- Logo desde la carpeta imagen -->
+            <img src="imagen/logo.png" alt="Logo Pet Kira">
+            <h2>Iniciar Sesión</h2>
+            
+            <div class="login-input-group">
+                <label for="username">Usuario</label>
+                <input type="text" id="username" placeholder="Ingresa tu usuario">
             </div>
-            <div class="form-group">
-                <label for="regPassword">Contraseña (mínimo 6 caracteres)</label>
-                <input type="password" id="regPassword" required minlength="6">
+            
+            <div class="login-input-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" placeholder="Ingresa tu contraseña">
             </div>
-            <div class="form-group">
-                <label for="regConfirmPassword">Confirmar Contraseña</label>
-                <input type="password" id="regConfirmPassword" required minlength="6">
-            </div>
-            <button type="submit">Registrarse</button>
-            <p id="reg-error-message" class="error-message"></p>
-            <p class="register-link">¿Ya tienes cuenta? <a href="#" id="showLogin">Iniciar Sesión</a></p>
-        </form>
+
+            <button class="login-btn" onclick="iniciarSesion()">Acceder al Sistema</button>
+            
+            <p id="login-error" class="error-msg">⚠️ Usuario o contraseña incorrectos</p>
+        </div>
     </div>
-    <script src="auth.js"></script>
+
+    <!-- ============================================ -->
+    <!-- SISTEMA DE VENTAS (PROTEGIDO)                 -->
+    <!-- ============================================ -->
+    <div id="app-screen">
+        <header>
+            <!-- Logo desde la carpeta imagen -->
+            <img src="imagen/logo.png" alt="Pet Kira Logo" class="header-logo">
+            <h1>Pet Kira</h1>
+            <p class="subtitle">STORE</p>
+            <!-- Botón para cerrar sesión -->
+            <div style="margin-top: 10px;">
+                <button class="btn btn-rojo btn-pequeno" onclick="cerrarSesion()">🚪 Cerrar Sesión</button>
+            </div>
+        </header>
+
+        <div class="container">
+            <!-- PANEL DE INVENTARIO -->
+            <div class="panel panel-inventario">
+                <h2>Gestión de Inventario</h2>
+                <div class="input-group">
+                    <input type="text" id="nombre-prod" placeholder="Nombre del producto">
+                </div>
+                <div class="input-group">
+                    <input type="number" class="small-input" id="precio-prod" placeholder="Precio (Bs)">
+                    <input type="number" class="small-input" id="stock-prod" placeholder="Stock">
+                </div>
+                <button class="btn" onclick="agregarProductoInventario()">➕ Agregar Producto</button>
+                
+                <table id="tabla-inventario">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Datos semilla -->
+                        <tr data-id="1">
+                            <td>Japi Gato</td>
+                            <td>350.00 Bs</td>
+                            <td>10</td>
+                            <td class="acciones-td">
+                                <button class="btn btn-azul btn-pequeno" onclick="abrirModalEditar(this)">✏️</button>
+                                <!-- Input para cantidad y botón de agregar -->
+                                <input type="number" id="cantidad_1" value="1" min="1" style="width: 45px; padding: 4px; text-align: center;">
+                                <button class="btn btn-verde btn-pequeno" onclick="agregarAVentaConCantidad(this, 'cantidad_1')">➕</button>
+                            </td>
+                        </tr>
+                        <tr data-id="2">
+                            <td>Mican Adulto</td>
+                            <td>250.00 Bs</td>
+                            <td>15</td>
+                            <td class="acciones-td">
+                                <button class="btn btn-azul btn-pequeno" onclick="abrirModalEditar(this)">✏️</button>
+                                <input type="number" id="cantidad_2" value="1" min="1" style="width: 45px; padding: 4px; text-align: center;">
+                                <button class="btn btn-verde btn-pequeno" onclick="agregarAVentaConCantidad(this, 'cantidad_2')">➕</button>
+                            </td>
+                        </tr>
+                        <tr data-id="3">
+                            <td>Mican Cachorro</td>
+                            <td>260.00 Bs</td>
+                            <td>8</td>
+                            <td class="acciones-td">
+                                <button class="btn btn-azul btn-pequeno" onclick="abrirModalEditar(this)">✏️</button>
+                                <input type="number" id="cantidad_3" value="1" min="1" style="width: 45px; padding: 4px; text-align: center;">
+                                <button class="btn btn-verde btn-pequeno" onclick="agregarAVentaConCantidad(this, 'cantidad_3')">➕</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- PANEL DE NOTA DE VENTA -->
+            <div class="panel panel-venta">
+                <div style="display: flex; flex-direction: column; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
+                        <div>
+                            <h2 style="border: none; padding: 0; margin: 0;">🛒 Nota de Venta</h2>
+                            <p><strong>Fecha:</strong> <span id="fecha-venta"></span></p>
+                        </div>
+                        <!-- Datos del Cliente -->
+                        <div style="flex: 1; min-width: 250px; background: #f9f9f9; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
+                            <label style="font-weight: bold; display: block; margin-bottom: 5px; font-size: 14px;">Datos del Cliente</label>
+                            <div class="input-group" style="margin-bottom: 5px;">
+                                <input type="text" id="cliente-nombre" placeholder="Nombre Completo">
+                            </div>
+                            <div class="input-group" style="margin-bottom: 5px;">
+                                <input type="text" id="cliente-telefono" placeholder="Teléfono">
+                            </div>
+                            <div class="input-group" style="margin-bottom: 0;">
+                                <input type="text" id="cliente-direccion" placeholder="Dirección">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <table id="tabla-venta">
+                    <thead>
+                        <tr>
+                            <th style="width: 10%;">CANT.</th>
+                            <th style="width: 40%;">DESCRIPCIÓN</th>
+                            <th style="width: 20%;">PRECIO</th>
+                            <th style="width: 20%;">TOTAL</th>
+                            <th style="width: 10%;">X</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+                <div class="resumen-pago">
+                    <div class="input-group" style="justify-content: flex-end; align-items: center; margin-bottom: 10px;">
+                        <label style="margin-right: 10px; font-weight: bold;">Descuento (%):</label>
+                        <input type="number" id="descuento-input" value="0" min="0" max="100" style="width: 80px; text-align: center;" oninput="actualizarTotal()">
+                    </div>
+                    <div class="linea-resumen">
+                        <span>Subtotal:</span>
+                        <span id="subtotal-text">0.00 Bs</span>
+                    </div>
+                    <div class="linea-resumen">
+                        <span>Descuento aplicado:</span>
+                        <span id="descuento-text">0.00 Bs</span>
+                    </div>
+                    <div class="linea-resumen">
+                        <strong>Total a Pagar:</strong>
+                        <span class="total-final" id="monto-total">0.00 Bs</span>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
+                    <button class="btn btn-rojo" onclick="limpiarVenta()">🗑️ Limpiar</button>
+                    <button class="btn btn-azul" onclick="imprimirNota()">🖨️ Imprimir</button>
+                    <button class="btn" onclick="generarPDF()">📄 Exportar a PDF</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDITAR PRODUCTO -->
+    <div id="modal-editar" class="modal">
+        <div class="modal-content">
+            <h3>Editar Producto</h3>
+            <input type="hidden" id="edit-id">
+            <div class="input-group">
+                <label style="width: 100%;">Nombre:</label>
+                <input type="text" id="edit-nombre">
+            </div>
+            <div class="input-group">
+                <label style="width: 100%;">Precio (Bs):</label>
+                <input type="number" id="edit-precio">
+            </div>
+            <div class="input-group">
+                <label style="width: 100%;">Stock:</label>
+                <input type="number" id="edit-stock">
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                <button class="btn btn-rojo" onclick="cerrarModal()">Cancelar</button>
+                <button class="btn btn-verde" onclick="guardarEdicion()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // LÓGICA DE INICIO DE SESIÓN
+        // ============================================
+        
+        // Credenciales fijas
+        const USER_CRED = "armando";
+        const PASS_CRED = "77802579";
+
+        function iniciarSesion() {
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const errorMsg = document.getElementById('login-error');
+
+            if(user === USER_CRED && pass === PASS_CRED) {
+                // Credenciales correctas
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-screen').style.display = 'block';
+                errorMsg.style.display = 'none';
+                // Inicializar fecha en el sistema
+                document.getElementById('fecha-venta').textContent = new Date().toLocaleDateString('es-BO');
+            } else {
+                // Credenciales incorrectas
+                errorMsg.style.display = 'block';
+                document.getElementById('password').value = ''; // Limpiar password
+            }
+        }
+
+        function cerrarSesion() {
+            document.getElementById('app-screen').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'flex';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('login-error').style.display = 'none';
+        }
+
+        // Permitir presionar "Enter" en el login
+        document.getElementById('password').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                iniciarSesion();
+            }
+        });
+
+        // ============================================
+        // LÓGICA DEL SISTEMA DE VENTAS
+        // ============================================
+
+        // 1. Agregar producto al inventario
+        function agregarProductoInventario() {
+            const nombre = document.getElementById('nombre-prod').value;
+            const precio = document.getElementById('precio-prod').value;
+            const stock = document.getElementById('stock-prod').value;
+
+            if(!nombre || !precio || !stock) return alert("Completa todos los campos.");
+
+            const tbody = document.querySelector('#tabla-inventario tbody');
+            const tr = document.createElement('tr');
+            const randomId = Date.now();
+            tr.setAttribute('data-id', randomId);
+            tr.innerHTML = `
+                <td>${nombre}</td>
+                <td>${parseFloat(precio).toFixed(2)} Bs</td>
+                <td>${stock}</td>
+                <td class="acciones-td">
+                    <button class="btn btn-azul btn-pequeno" onclick="abrirModalEditar(this)">✏️</button>
+                    <!-- Input y botón para productos añadidos manualmente -->
+                    <input type="number" id="cantidad_${randomId}" value="1" min="1" style="width: 45px; padding: 4px; text-align: center;">
+                    <button class="btn btn-verde btn-pequeno" onclick="agregarAVentaConCantidad(this, 'cantidad_${randomId}')">➕</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+            ['nombre-prod', 'precio-prod', 'stock-prod'].forEach(id => document.getElementById(id).value = '');
+        }
+
+        // 2. Modal de Edición
+        let filaEditando = null;
+        function abrirModalEditar(boton) {
+            filaEditando = boton.parentElement.parentElement;
+            document.getElementById('edit-id').value = filaEditando.getAttribute('data-id');
+            document.getElementById('edit-nombre').value = filaEditando.cells[0].textContent;
+            document.getElementById('edit-precio').value = parseFloat(filaEditando.cells[1].textContent.replace(' Bs', ''));
+            document.getElementById('edit-stock').value = parseInt(filaEditando.cells[2].textContent);
+            document.getElementById('modal-editar').style.display = 'flex';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modal-editar').style.display = 'none';
+            filaEditando = null;
+        }
+
+        function guardarEdicion() {
+            if(!filaEditando) return;
+            const nombre = document.getElementById('edit-nombre').value;
+            const precio = document.getElementById('edit-precio').value;
+            const stock = document.getElementById('edit-stock').value;
+
+            if(!nombre || !precio || !stock) return alert("Todos los campos son obligatorios");
+
+            filaEditando.cells[0].textContent = nombre;
+            filaEditando.cells[1].textContent = parseFloat(precio).toFixed(2) + " Bs";
+            filaEditando.cells[2].textContent = stock;
+            cerrarModal();
+        }
+
+        // Cerrar modal haciendo clic fuera
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('modal-editar')) cerrarModal();
+        }
+
+        // 3. Función original para agregar 1 a la vez (se mantiene)
+        function agregarAVenta(boton) {
+            const filaInv = boton.parentElement.parentElement;
+            const nombre = filaInv.cells[0].textContent;
+            const precioTexto = filaInv.cells[1].textContent.replace(' Bs', '');
+            const precio = parseFloat(precioTexto);
+            
+            let stock = parseInt(filaInv.cells[2].textContent);
+            if(stock <= 0) return alert("¡Sin stock!");
+            filaInv.cells[2].textContent = stock - 1;
+
+            const tbodyVenta = document.querySelector('#tabla-venta tbody');
+            let encontrado = false;
+            
+            tbodyVenta.querySelectorAll('tr').forEach(tr => {
+                if(tr.cells[1].textContent === nombre) {
+                    let cant = parseInt(tr.cells[0].textContent);
+                    tr.cells[0].textContent = cant + 1;
+                    tr.cells[3].textContent = (precio * (cant + 1)).toFixed(2) + " Bs";
+                    encontrado = true;
+                }
+            });
+
+            if(!encontrado) {
+                const trVenta = document.createElement('tr');
+                trVenta.innerHTML = `
+                    <td>1</td>
+                    <td>${nombre}</td>
+                    <td>${precio.toFixed(2)} Bs</td>
+                    <td>${precio.toFixed(2)} Bs</td>
+                    <td><button class="btn btn-rojo btn-pequeno" onclick="eliminarItemVenta(this)">X</button></td>
+                `;
+                tbodyVenta.appendChild(trVenta);
+            }
+            actualizarTotal();
+        }
+
+        // NUEVA FUNCIÓN: Agregar con CANTIDAD MANUAL
+        function agregarAVentaConCantidad(boton, inputId) {
+            const filaInv = boton.parentElement.parentElement;
+            const nombre = filaInv.cells[0].textContent;
+            const precioTexto = filaInv.cells[1].textContent.replace(' Bs', '');
+            const precio = parseFloat(precioTexto);
+            const cantidadInput = document.getElementById(inputId);
+            let cantidad = parseInt(cantidadInput.value);
+            
+            // Validación de cantidad
+            if(isNaN(cantidad) || cantidad < 1) {
+                cantidad = 1;
+                cantidadInput.value = 1;
+            }
+
+            let stock = parseInt(filaInv.cells[2].textContent);
+            if(stock < cantidad) {
+                return alert(`Stock insuficiente. Solo quedan ${stock} unidades.`);
+            }
+            
+            // Descontar stock total de una vez
+            filaInv.cells[2].textContent = stock - cantidad;
+
+            const tbodyVenta = document.querySelector('#tabla-venta tbody');
+            let encontrado = false;
+            
+            tbodyVenta.querySelectorAll('tr').forEach(tr => {
+                if(tr.cells[1].textContent === nombre) {
+                    let cantActual = parseInt(tr.cells[0].textContent);
+                    let nuevaCantidad = cantActual + cantidad;
+                    tr.cells[0].textContent = nuevaCantidad;
+                    tr.cells[3].textContent = (precio * nuevaCantidad).toFixed(2) + " Bs";
+                    encontrado = true;
+                }
+            });
+
+            if(!encontrado) {
+                const trVenta = document.createElement('tr');
+                trVenta.innerHTML = `
+                    <td>${cantidad}</td>
+                    <td>${nombre}</td>
+                    <td>${precio.toFixed(2)} Bs</td>
+                    <td>${(precio * cantidad).toFixed(2)} Bs</td>
+                    <td><button class="btn btn-rojo btn-pequeno" onclick="eliminarItemVenta(this)">X</button></td>
+                `;
+                tbodyVenta.appendChild(trVenta);
+            }
+            actualizarTotal();
+        }
+
+        // 4. Eliminar item y devolver stock
+        function eliminarItemVenta(boton) {
+            const fila = boton.parentElement.parentElement;
+            const nombre = fila.cells[1].textContent;
+            const cantidad = parseInt(fila.cells[0].textContent);
+
+            document.querySelectorAll('#tabla-inventario tbody tr').forEach(tr => {
+                if(tr.cells[0].textContent === nombre) {
+                    tr.cells[2].textContent = parseInt(tr.cells[2].textContent) + cantidad;
+                }
+            });
+            fila.remove();
+            actualizarTotal();
+        }
+
+        // 5. Cálculo de Totales (Con Descuento)
+        function actualizarTotal() {
+            const filas = document.querySelectorAll('#tabla-venta tbody tr');
+            let subtotal = 0;
+            filas.forEach(tr => {
+                subtotal += parseFloat(tr.cells[3].textContent.replace(' Bs', ''));
+            });
+
+            const descuentoPorcentaje = parseFloat(document.getElementById('descuento-input').value) || 0;
+            const montoDescuento = subtotal * (descuentoPorcentaje / 100);
+            const totalFinal = subtotal - montoDescuento;
+
+            document.getElementById('subtotal-text').textContent = subtotal.toFixed(2) + " Bs";
+            document.getElementById('descuento-text').textContent = montoDescuento.toFixed(2) + " Bs";
+            document.getElementById('monto-total').textContent = totalFinal.toFixed(2) + " Bs";
+        }
+
+        // 6. Limpiar venta
+        function limpiarVenta() {
+            if(confirm("¿Limpiar venta y devolver stock?")) {
+                const tbody = document.querySelector('#tabla-venta tbody');
+                tbody.querySelectorAll('tr').forEach(tr => {
+                    const nombre = tr.cells[1].textContent;
+                    const cantidad = parseInt(tr.cells[0].textContent);
+                    document.querySelectorAll('#tabla-inventario tbody tr').forEach(invTr => {
+                        if(invTr.cells[0].textContent === nombre) {
+                            invTr.cells[2].textContent = parseInt(invTr.cells[2].textContent) + cantidad;
+                        }
+                    });
+                });
+                tbody.innerHTML = '';
+                document.getElementById('descuento-input').value = 0;
+                actualizarTotal();
+            }
+        }
+
+        // 7. IMPRIMIR
+        function imprimirNota() {
+            const filasVenta = document.querySelectorAll('#tabla-venta tbody tr');
+            if(filasVenta.length === 0) return alert("No hay productos en la venta para imprimir.");
+
+            const nombreCliente = document.getElementById('cliente-nombre').value || 'Cliente General';
+            const telefonoCliente = document.getElementById('cliente-telefono').value || '-';
+            const direccionCliente = document.getElementById('cliente-direccion').value || '-';
+
+            let contenidoImpresion = `
+                <html>
+                <head><title>Nota de Venta Pet Kira</title>
+                <style>
+                    body { font-family: 'Georgia', serif; padding: 40px; }
+                    .header { text-align: center; margin-bottom: 30px; }
+                    h1 { color: #3d5c4c; margin: 0; }
+                    .subtitle { color: #ea7a3d; margin: 0; letter-spacing: 2px; }
+                    .info-cliente { margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; background: #f9f9f9; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                    th { background-color: #3d5c4c; color: white; padding: 10px; text-align: left; }
+                    td { border-bottom: 1px solid #ddd; padding: 10px; }
+                    .totales { margin-top: 20px; text-align: right; }
+                    .total-final { font-size: 24px; font-weight: bold; color: #3d5c4c; }
+                    .footer { margin-top: 50px; border-top: 1px dashed #ccc; padding-top: 20px; text-align: center; font-style: italic; color: #666; }
+                    @media print { body { margin: 0; } }
+                </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>Pet Kira</h1>
+                        <div class="subtitle">STORE</div>
+                        <h3 style="margin-top: 5px; color: #ea7a3d;">NOTA DE VENTA</h3>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
+                        <div><strong>Fecha:</strong> ${new Date().toLocaleDateString('es-BO')}</div>
+                    </div>
+
+                    <div class="info-cliente">
+                        <strong>Cliente:</strong> ${nombreCliente}<br>
+                        <strong>Teléfono:</strong> ${telefonoCliente}<br>
+                        <strong>Dirección:</strong> ${direccionCliente}
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>CANT.</th>
+                                <th>DESCRIPCIÓN</th>
+                                <th>PRECIO UNIT.</th>
+                                <th>TOTAL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            let subtotal = 0;
+            filasVenta.forEach(tr => {
+                const cant = tr.cells[0].textContent;
+                const desc = tr.cells[1].textContent;
+                const pUnit = tr.cells[2].textContent;
+                const totalItem = tr.cells[3].textContent;
+                subtotal += parseFloat(totalItem.replace(' Bs', ''));
+                
+                contenidoImpresion += `
+                    <tr>
+                        <td>${cant}</td>
+                        <td>${desc}</td>
+                        <td>${pUnit}</td>
+                        <td>${totalItem}</td>
+                    </tr>
+                `;
+            });
+
+            const descPorcentaje = parseFloat(document.getElementById('descuento-input').value) || 0;
+            const montoDescuento = subtotal * (descPorcentaje / 100);
+            const totalFinal = subtotal - montoDescuento;
+
+            contenidoImpresion += `
+                        </tbody>
+                    </table>
+
+                    <div class="totales">
+                        <p><strong>Subtotal:</strong> ${subtotal.toFixed(2)} Bs</p>
+            `;
+            
+            if(descPorcentaje > 0) {
+                contenidoImpresion += `<p style="color:#ea7a3d;"><strong>Descuento (${descPorcentaje}%):</strong> -${montoDescuento.toFixed(2)} Bs</p>`;
+            }
+
+            contenidoImpresion += `
+                        <p class="total-final">TOTAL A PAGAR: ${totalFinal.toFixed(2)} Bs</p>
+                    </div>
+
+                    <div class="footer">
+                        ¡Gracias por tu compra en Pet Kira Store! 🐾
+                    </div>
+                </body>
+                </html>
+            `;
+
+            const ventanaImpresion = window.open('', '_blank', 'width=800,height=600');
+            ventanaImpresion.document.write(contenidoImpresion);
+            ventanaImpresion.document.close();
+            ventanaImpresion.focus();
+            ventanaImpresion.print();
+        }
+
+        // 8. GENERADOR DE PDF PROFESIONAL
+        function generarPDF() {
+            const filasVenta = document.querySelectorAll('#tabla-venta tbody tr');
+            if(filasVenta.length === 0) return alert("No hay productos en la venta.");
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // --- CABECERA DEL PDF ---
+            doc.setFontSize(22);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(61, 92, 76);
+            doc.text("Pet Kira", 105, 20, null, null, "center");
+
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(234, 122, 61);
+            doc.text("STORE", 105, 28, null, null, "center");
+            
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 0);
+            doc.text("NOTA DE VENTA", 105, 38, null, null, "center");
+
+            doc.setFontSize(10);
+            doc.setTextColor(50, 50, 50);
+            doc.text(`Fecha de Emisión: ${new Date().toLocaleDateString('es-BO')}`, 14, 50);
+            doc.text("Detalle: Nota de Venta Comercial", 14, 56);
+
+            // --- INFORMACIÓN DEL CLIENTE EN EL PDF ---
+            const nombreCliente = document.getElementById('cliente-nombre').value || 'Cliente General';
+            const telefonoCliente = document.getElementById('cliente-telefono').value || '-';
+            const direccionCliente = document.getElementById('cliente-direccion').value || '-';
+
+            doc.setFontSize(9);
+            doc.setTextColor(40, 40, 40);
+            doc.text(`Cliente: ${nombreCliente}`, 14, 65);
+            doc.text(`Teléfono: ${telefonoCliente}`, 14, 71);
+            doc.text(`Dirección: ${direccionCliente}`, 14, 77);
+
+            // --- TABLA DE PRODUCTOS ---
+            const productos = [];
+            let totalGeneral = 0;
+            filasVenta.forEach(tr => {
+                const cant = tr.cells[0].textContent;
+                const desc = tr.cells[1].textContent;
+                const pUnit = tr.cells[2].textContent;
+                const totalItem = parseFloat(tr.cells[3].textContent.replace(' Bs', ''));
+                totalGeneral += totalItem;
+                productos.push([cant, desc, pUnit, totalItem.toFixed(2) + " Bs"]);
+            });
+
+            const descPorcentaje = parseFloat(document.getElementById('descuento-input').value) || 0;
+            const descMonto = totalGeneral * (descPorcentaje / 100);
+            const totalFinal = totalGeneral - descMonto;
+
+            doc.autoTable({
+                startY: 85,
+                head: [['CANT.', 'DESCRIPCIÓN', 'PRECIO UNIT.', 'TOTAL']],
+                body: productos,
+                theme: 'grid',
+                headStyles: { fillColor: [61, 92, 76], textColor: 255, halign: 'center' },
+                columnStyles: {
+                    0: { halign: 'center', cellWidth: 20 },
+                    2: { halign: 'center', cellWidth: 35 },
+                    3: { halign: 'right', cellWidth: 35 }
+                },
+                styles: { fontSize: 10, cellPadding: 4 }
+            });
+
+            // --- PIE DE PÁGINA Y TOTALES ---
+            let yFinal = doc.lastAutoTable.finalY + 15;
+
+            if(descPorcentaje > 0) {
+                doc.setFontSize(10);
+                doc.text(`Subtotal: ${totalGeneral.toFixed(2)} Bs`, 140, yFinal);
+                yFinal += 7;
+                doc.setTextColor(234, 122, 61);
+                doc.text(`Descuento (${descPorcentaje}%): -${descMonto.toFixed(2)} Bs`, 140, yFinal);
+                yFinal += 7;
+            }
+
+            doc.setFillColor(61, 92, 76);
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(14);
+            doc.setFont("helvetica", "bold");
+            
+            const textoTotal = `TOTAL A PAGAR: ${totalFinal.toFixed(2)} Bs`;
+            const anchoTexto = doc.getTextWidth(textoTotal) + 20;
+            const xPos = 190 - anchoTexto;
+            
+            doc.rect(xPos - 5, yFinal - 6, anchoTexto + 10, 10, 'F');
+            doc.text(textoTotal, xPos, yFinal);
+
+            yFinal += 20;
+            doc.setTextColor(100, 100, 100);
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "italic");
+            doc.text("¡Gracias por tu compra en Pet Kira Store! 🐾", 105, yFinal, null, null, "center");
+
+            doc.save(`Nota_Venta_PetKira_${Date.now()}.pdf`);
+        }
+    </script>
 </body>
 </html>

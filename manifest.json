@@ -1,0 +1,20 @@
+{
+  "name": "Pet Kira Store",
+  "short_name": "Pet Kira",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3d5c4c",
+  "icons": [
+    {
+      "src": "imagen/logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "imagen/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
